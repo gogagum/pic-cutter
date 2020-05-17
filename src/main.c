@@ -9,6 +9,7 @@
 
 #include "pixel_linker.h"
 #include "gpixel.h"
+#include "rename.h"
 
 // Checks if file is png
 void
@@ -29,7 +30,7 @@ CheckIfPNG(FILE* fp)
 
 void
 GetImageParams(int *width, int *height,
-               png_byte* color_type, png_byte *bit_depth
+               png_byte* color_type, png_byte *bit_depth,
                png_structp image_pointer, png_infop info_pointer)
 {
   *width  = png_get_image_width(image_pointer, info_pointer);
@@ -155,21 +156,77 @@ main(int argc, char* argv[])
   png_byte bit_depth;
 
   // Get and check image parameters
-  GetImageParams(width, height, color_type, bit_depth,
+  GetImageParams(&width, &height, &color_type, &bit_depth,
                  image_pointer, info_pointer);
   CheckWidthToCut(width, width_to_cut);
   CheckBitDepth(bit_depth);
   SetColorPalette(color_type, image_pointer);
 
   // Allocating memory
-  png_bytep *row_pointers =
+  png_bytep *row_ptrs =
       AllocateAndFillPNGMatrix(width, height, image_pointer, info_pointer);
+  GPixel **pixels_ptr = (GPixel**)row_ptrs;
+  GPixelLinks **pixel_links_ptrs = AllocatePixelLinks(width, height);
+
 
   // Reading to allocated memory
-  png_read_image(image_pointer, row_pointers);
+  png_read_image(image_pointer, row_ptrs);
 
+  // Create grid
+  GGrid working_grid = {
+    .width = width,
+    .height = height,
+    .pixels_ptr =  pixels_ptr,
+    .pixel_links_ptrs = pixel_links_ptrs
+  };
 
+  // Working with grid
+  // Apply dp
 
+  // So now we need to write file from new pixels_ptr
+  char* new_file_name = Rename(file_name);
+
+  // Open new file for changing write or creating it
+  FILE *write_fp = fopen(new_file_name, "w+");
+  if(!fp) {
+    perror("Error while opening result file.\n");
+    exit(1);
+  }
+
+  png_structp output_image_ptr =
+      png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (!output_image_ptr)
+  {
+    abort();
+  }
+
+  png_infop output_info_ptr = png_create_info_struct(output_image_ptr);
+  if (!output_info_ptr)
+  {
+    abort();
+  }
+
+  if (setjmp(png_jmpbuf(output_image_ptr)))
+  {
+    abort();
+  }
+
+  png_init_io(output_image_ptr, write_fp);
+
+  png_set_IHDR(
+    output_image_ptr,
+    output_info_ptr,
+    width, height,  // TODO to change to taking from grid
+    8,
+    PNG_COLOR_TYPE_RGBA,
+    PNG_INTERLACE_NONE,
+    PNG_COMPRESSION_TYPE_DEFAULT,
+    PNG_FILTER_TYPE_DEFAULT
+  );
+  png_write_info(output_image_ptr, output_info_ptr);
+
+  png_write_image(output_image_ptr, row_ptrs);
+  png_write_end(output_image_ptr, NULL);
 
   return 0;
 }

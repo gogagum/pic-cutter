@@ -10,7 +10,7 @@ typedef struct gpixel_links_t{
   bool erased;
 } GPixelLinks;
 
-struct PixelLinks
+GPixelLinks
 **AllocatePixelLinks(int width, int height)
 {
   GPixelLinks **row_pointers =
@@ -18,16 +18,15 @@ struct PixelLinks
 
   for(uint32_t y = 0; y < height; y++)
   {
-    row_pointers[y] =
-      (struct PixelLinks*)malloc(sizeof(GPixelLinks) * width);
+    row_pointers[y] = (GPixelLinks*)malloc(sizeof(GPixelLinks) * width);
   }
   return row_pointers;
 }
 
 void
-FillPixelLinksByDefault(struct PixelLinks **row_pointers, int width, int height)
+FillPixelLinksByDefault(GPixelLinks **row_pointers, int width, int height)
 {
-  struct PixelLinks default_pixel_links = {
+  GPixelLinks default_pixel_links = {
     .to_upper = 0,
     .to_lower = 0,
     .to_left = 1,
