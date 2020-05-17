@@ -37,13 +37,24 @@ main(int argc, char* argv[])
   DPStruct** dp_matr =
       AllocateDPMatr(working_grid.width, working_grid.height);
 
-  for (int i = 0; i < working_grid.width - width_to_cut; ++i)
+  for (int i = 0; i < width_to_cut; ++i)
   {
+    #ifdef DEBUG
+    printf("%s%i\n", "Iteration: ", i);
+    #endif
+
     CountDP(working_grid.width, working_grid.height, dp_matr, &working_grid);
-    // Erase path
+    #ifdef DEBUG
+    printf("%s\n", "Counted dp.");
+    #endif
+    ErasePixelsAccordingToDP(dp_matr, &working_grid);
   }
 
-  // Apply dp
+  #ifdef DEBUG
+  printf("%s\n", "Passed counting dp.");
+  #endif
+
+  ApplyErasedPixelsFromGrid(width_to_cut, &working_grid);
 
   // So now we need to write file from new pixels_ptr
   char new_file_name[sizeof(char) * (strlen(file_name) + 10)];

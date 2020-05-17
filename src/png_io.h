@@ -142,7 +142,9 @@ ReadPNGIntoGrid(char* input_file_name, GGrid* gridp)
                                                  image_ptr, info_ptr);
   gridp->pixels_ptr = (GPixel**)row_ptrs;
   gridp->pixel_links_ptrs = AllocatePixelLinks(gridp->width,
-                                                      gridp->height);
+                                               gridp->height);
+  FillPixelLinksByDefault(gridp->pixel_links_ptrs, gridp->width, gridp->height);
+
 
   // Reading to allocated memory
   png_read_image(image_ptr, row_ptrs);
