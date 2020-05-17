@@ -43,72 +43,95 @@ typedef struct grid_t{
 
 // Sets coords for pixel left neighbour
 // If there is no neighbour, sets current coords
-void
-GetLeftToCompare(GPixelCoords *left_to_cmp_coords_ptr,
-                 GPixelCoords curr, GGrid *gridp)
+GPixelCoords
+GetLeftToCompare(GPixelCoords curr, GGrid *gridp)
 {
-  (*left_to_cmp_coords_ptr).y = curr.y;
-  (*left_to_cmp_coords_ptr).x =
-      curr.x - (*gridp).pixel_links_ptrs[curr.y][curr.x].to_left;
-  if ((*left_to_cmp_coords_ptr).x < 0)
-    (*left_to_cmp_coords_ptr).x = 0;
+  GPixelCoords left_to_cmp_coords = {
+    .x = curr.x - gridp->pixel_links_ptrs[curr.y][curr.x].to_left,
+    .y = curr.y
+  };
+  if (left_to_cmp_coords.x < 0) { left_to_cmp_coords.x = 0; }
+  return left_to_cmp_coords;
 }
+
+GPixelCoords
+GetRight(GPixelCoords curr, GGrid *gridp)
+{
+  GPixelCoords right_coords = {
+    .x = curr.x + gridp->pixel_links_ptrs[curr.y][curr.x].to_right,
+    .y = curr.y
+  };
+  return right_coords;
+}
+
+
+GPixelCoords
+GetLeft(GPixelCoords curr, GGrid *gridp)
+{
+  GPixelCoords left_coords = {
+    .x = curr.x - gridp->pixel_links_ptrs[curr.y][curr.x].to_left,
+    .y = curr.y
+  };
+  return left_coords;
+}
+
 
 // Sets coords for pixel right neighbour
 // If there is no neighbour, sets current coords
-void
-GetRightToCompare(GPixelCoords *right_to_cmp_coords_ptr,
-                  GPixelCoords curr, GGrid *gridp)
+GPixelCoords
+GetRightToCompare(GPixelCoords curr, GGrid *gridp)
 {
-  (*right_to_cmp_coords_ptr).y = curr.y;
-  (*right_to_cmp_coords_ptr).x =
-      curr.x + (*gridp).pixel_links_ptrs[curr.y][curr.x].to_right;
-  if ((*right_to_cmp_coords_ptr).x >= (*gridp).width)
-    (*right_to_cmp_coords_ptr).x = (*gridp).width - 1;
+  GPixelCoords right_to_cmp_coords = {
+    .x = curr.x + gridp->pixel_links_ptrs[curr.y][curr.x].to_right,
+    .y = curr.y
+  };
+  if (right_to_cmp_coords.x >= gridp->width) {
+    right_to_cmp_coords.x = gridp->width - 1;
+  }
+  return right_to_cmp_coords;
 }
 
 // Sets coords for pixel upper neighbour
 // If there is no neighbour, sets current coords
-void
-GetUpperToCompare(GPixelCoords *upper_to_cmp_coords_ptr,
-                  GPixelCoords curr, GGrid *gridp)
+GPixelCoords
+GetUpperToCompare(GPixelCoords curr, GGrid *gridp)
 {
-  (*upper_to_cmp_coords_ptr).x =
-      curr.x + (*gridp).pixel_links_ptrs[curr.y][curr.x].to_upper;
-  (*upper_to_cmp_coords_ptr).y = curr.y + 1;
-  if ((*upper_to_cmp_coords_ptr).y == (*gridp).height)
-    (*upper_to_cmp_coords_ptr).y--;
+  GPixelCoords upper_to_cmp_coords = {
+    .x = gridp->pixel_links_ptrs[curr.y][curr.x].to_upper,
+    .y = curr.y + 1
+  };
+  if (upper_to_cmp_coords.y == gridp->height)
+  {
+    upper_to_cmp_coords.y = gridp->height - 1;
+  }
+  return upper_to_cmp_coords;
 }
 
 // Sets coords for pixel lower neighbour
 // If there is no neighbour, sets current coords
-void
-GetLowerToCompare(GPixelCoords *lower_to_cmp_coords_ptr,
-                  GPixelCoords curr, GGrid *gridp)
+GPixelCoords
+GetLowerToCompare(GPixelCoords curr, GGrid *gridp)
 {
-  (*lower_to_cmp_coords_ptr).x =
-      curr.x + (*gridp).pixel_links_ptrs[curr.y][curr.x].to_lower;
-  (*lower_to_cmp_coords_ptr).y = curr.y - 1;
-  if ((*lower_to_cmp_coords_ptr).y == -1)
-    (*lower_to_cmp_coords_ptr).y++;
+  GPixelCoords lower_to_cmp_coords = {
+    .x = curr.x + gridp->pixel_links_ptrs[curr.y][curr.x].to_lower,
+    .y = curr.y - 1
+  };
+  if (lower_to_cmp_coords.y == -1) { lower_to_cmp_coords.y=0; }
+  return lower_to_cmp_coords;
 }
 
 int32_t
 GetWeight(GPixelCoords curr, GGrid *gridp)
 {
-  GPixelCoords lower_to_cmp_coords;
-  GPixelCoords upper_to_cmp_coords;
-  GPixelCoords left_to_cmp_coords;
-  GPixelCoords right_to_cmp_coords;
-  GetLowerToCompare(&lower_to_cmp_coords, curr, gridp);
-  GetUpperToCompare(&upper_to_cmp_coords, curr, gridp);
-  GetLeftToCompare(&left_to_cmp_coords, curr, gridp);
-  GetRightToCompare(&right_to_cmp_coords, curr, gridp);
-  GPixel curr_pixel =  (*gridp).pixels_ptr[curr.y][curr.x];  // To check
-  GPixel lower_pixel = (*gridp).pixels_ptr[lower_to_cmp_coords.y][lower_to_cmp_coords.x];
-  GPixel upper_pixel = (*gridp).pixels_ptr[upper_to_cmp_coords.y][upper_to_cmp_coords.x];
-  GPixel left_pixel  = (*gridp).pixels_ptr[left_to_cmp_coords.y][left_to_cmp_coords.x];
-  GPixel right_pixel = (*gridp).pixels_ptr[right_to_cmp_coords.y][right_to_cmp_coords.x];
+  GPixelCoords lower_to_cmp_coords = GetLowerToCompare(curr, gridp);
+  GPixelCoords upper_to_cmp_coords = GetUpperToCompare(curr, gridp);;
+  GPixelCoords left_to_cmp_coords = GetLeftToCompare(curr, gridp);
+  GPixelCoords right_to_cmp_coords = GetRightToCompare(curr, gridp);
+  GPixel curr_pixel =  gridp->pixels_ptr[curr.y][curr.x];  // To check
+  GPixel lower_pixel = gridp->pixels_ptr[lower_to_cmp_coords.y][lower_to_cmp_coords.x];
+  GPixel upper_pixel = gridp->pixels_ptr[upper_to_cmp_coords.y][upper_to_cmp_coords.x];
+  GPixel left_pixel  = gridp->pixels_ptr[left_to_cmp_coords.y][left_to_cmp_coords.x];
+  GPixel right_pixel = gridp->pixels_ptr[right_to_cmp_coords.y][right_to_cmp_coords.x];
   int32_t weight = ColorDistance(curr_pixel, lower_pixel) +
                    ColorDistance(curr_pixel, upper_pixel) +
                    ColorDistance(curr_pixel, left_pixel) +
