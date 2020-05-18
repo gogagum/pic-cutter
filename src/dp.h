@@ -1,3 +1,9 @@
+#include <stdlib.h>
+#include <stdint.h>
+
+#include "gpixel.h"
+#include "ggrid.h"
+
 typedef struct dp_struct_t{
   int32_t sum_weight;
   int8_t to_down;
@@ -70,7 +76,7 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
     // Pixel is solo
     if (lr_coords.x >= gridp->width)
     {
-      dp[curr.y][curr.x].sum_weight+= GetWeight(lower_coords, gridp);
+      dp[curr.y][curr.x].sum_weight+=GetWeight(lower_coords, gridp);
       dp[curr.y][curr.x].to_down = 0;
       continue;
     }
@@ -105,49 +111,43 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
       #endif
 
       dp[curr.y][curr.x].sum_weight = GetWeight(curr, gridp);
-      if (lr_coords.x >= gridp->width)  // it is the last one
-      {
-        // Last pixel in line will have no lower_right
-        // Choose between lower_left and lower
-        ll_weight = GetWeight(ll_coords, gridp);
-        lower_weight = GetWeight(lower_coords, gridp);
+      int32_t weight_to_add;
+      int32_t to_down_ans;
 
-        if (lower_weight < ll_weight) {
-          dp[curr.y][curr.x].sum_weight += lower_weight;
-          dp[curr.y][curr.x].to_down = 0;
-        }
-        else
-        {
-          dp[curr.y][curr.x].sum_weight += ll_weight;
-          dp[curr.y][curr.x].to_down = -1;
-        }
-      }
-      else  // Choose from 3
+      ll_weight = GetWeight(ll_coords, gridp);
+      lower_weight = GetWeight(lower_coords, gridp);
+
+      if (lower_weight < ll_weight)
       {
-        ll_weight = GetWeight(ll_coords, gridp);
+        weight_to_add = lower_weight;
+        to_down_ans = 0;
+      }
+      else
+      {
+        weight_to_add += ll_weight;
+        to_down_ans = -1;
+      }
+
+      if (lr_coords.x < gridp->width)
+      {
         lr_weight = GetWeight(lr_coords, gridp);
-        lower_weight = GetWeight(lower_coords, gridp);
-
-        if (ll_weight < lr_weight && ll_weight < lower_weight)
+        if (lr_weight < weight_to_add)
         {
-          dp[curr.y][curr.x].sum_weight += ll_weight;
-          dp[curr.y][curr.x].to_down = -1;
+          weight_to_add = lr_weight;
+          to_down_ans = 1;
         }
-        else if (lr_weight < lower_weight)
-        {
-          dp[curr.y][curr.x].sum_weight += lr_weight;
-          dp[curr.y][curr.x].to_down = 1;
-        }
-        else
-        {
-          dp[curr.y][curr.x].sum_weight += lower_weight;
-          dp[curr.y][curr.x].to_down = 0;
-        }
-        // Move to the right
-        ll_coords = GetRight(ll_coords, gridp);
-        lr_coords = GetRight(lr_coords, gridp);
-        lower_coords = GetRight(lower_coords, gridp);
       }
+
+      dp[curr.y][curr.x].sum_weight += weight_to_add;
+      dp[curr.y][curr.x].to_down = to_down_ans;
+
+      // Move to the right
+      ll_coords = GetRight(ll_coords, gridp);
+      if (lr_coords.x < gridp.width) {
+        lr_coords = GetRight(lr_coords, gridp);
+      }
+      lower_coords = GetRight(lower_coords, gridp);
+
       curr = GetRight(curr, gridp);
     }
   }
@@ -160,10 +160,9 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
   printf("%s\n", "ErasePixelsAccordingToDP");
   #endif
 
-
   //Find smallest sum weight on lowest line
   int start_x = 0;
-  int best_weight = (~0)-1;  // TODO better inf const
+  int best_weight = INT_MAX;
 
   for (int x = 0; x < gridp->width; ++x)
   {
@@ -178,8 +177,6 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
   #ifdef DEBUG
   printf("%s\n", "Found starting x.");
   #endif
-
-
 
   // Moving backwards erase pixels
   GPixelCoords curr = {
@@ -202,21 +199,26 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
       gridp->pixel_links_ptrs[right.y][right.x].to_left +=
           gridp->pixel_links_ptrs[curr.y][curr.x].to_left;
     }
-    // TODO: correct lower and upper links
-
     if (y == 0) {
       break;
     }
+
+    // TODO: correct lower and upper links
     if (dp[curr.y][curr.x].to_down == 0) {
+      //nothing to correct
       curr = GetLower(curr, gridp);
     }
     else if (dp[curr.y][curr.x].to_down == -1)
     {
+      // Correct lower (link to upper)
+      // Correct left (link to lower)
       curr = GetLower(curr, gridp);
       curr = GetLeft(curr, gridp);
     }
     else
     {
+      // Correct lower (link to upper)
+      // Correct right (link to lower)
       curr = GetLower(curr, gridp);
       curr = GetRight(curr, gridp);
     }

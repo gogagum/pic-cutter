@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifndef GPIXEL_LINKER_H
+#define GPIXEL_LINKER_H
+
 typedef struct gpixel_links_t{
   int32_t to_upper;  // upper.x = current.x + to_upper
   int32_t to_lower;  // lower.x = current.x + to_lower
@@ -42,3 +45,5 @@ FillPixelLinksByDefault(GPixelLinks **row_pointers, int width, int height)
     }
   }
 }
+
+#endif    // GPIXEL_LINKER_H

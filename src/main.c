@@ -7,8 +7,9 @@
 //#define PNG_DEBUG 3
 #include <png.h>
 
-#include "pixel_linker.h"
 #include "gpixel.h"
+#include "ggrid.h"
+#include "gpixel_linker.h"
 #include "rename.h"
 #include "png_io.h"
 #include "dp.h"
