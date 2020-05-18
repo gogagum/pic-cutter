@@ -25,12 +25,8 @@ DPStruct
 void
 CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
 {
-  #ifdef DEBUG
-  printf("%s\n", "CountDP");
-  #endif
-
   // Fill first line with weights
-  for (int x = 0; x < 0; ++x) {
+  for (int x = 0; x < width; ++x) {
     if (!gridp->pixel_links_ptrs[0][x].erased)
     {
       GPixelCoords curr = {.x = x, .y = 0};
@@ -38,27 +34,16 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
     }
   }
 
-  #ifdef DEBUG
-  printf("%s\n", "Filled first line");
-  #endif
-
   for (int y = 1; y < height; ++y)
   {
-    #ifdef DEBUG
-    printf("%s%i\n", "Current y: ", y);
-    #endif
     GPixelCoords curr = {.x = 0, .y = y};
     // Skip all erased pixels
     while (curr.x < width &&
            gridp->pixel_links_ptrs[curr.y][curr.x].erased)
     {
       curr = GetRight(curr, gridp);
-      //curr.x += gridp->pixel_links_ptrs[curr.y][curr.x].to_right;
     }
 
-    #ifdef DEBUG
-    printf("%s%i %i\n", "current coords: ", curr.x, curr.y);
-    #endif
     // First pixel in line will have no lower_left
     // Choose between lower_right and lower
 
@@ -68,21 +53,16 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
     GPixelCoords lower_coords = GetLower(curr, gridp);
     GPixelCoords lr_coords = GetRight(lower_coords, gridp);
 
-    #ifdef DEBUG
-    printf("%s%i %i\n", "lower coords: ", lower_coords.x, lower_coords.y);
-    printf("%s%i %i\n", "lr coords: ", lr_coords.x, lr_coords.y);
-    #endif
-
+    int lower_weight = dp[lower_coords.y][lower_coords.x].sum_weight;
     // Pixel is solo
-    if (lr_coords.x >= gridp->width)
+    if (!IsRealPixel(lr_coords, gridp))
     {
-      dp[curr.y][curr.x].sum_weight+=GetWeight(lower_coords, gridp);
+      dp[curr.y][curr.x].sum_weight+= lower_weight;
       dp[curr.y][curr.x].to_down = 0;
       continue;
     }
 
-    int lower_weight = GetWeight(lower_coords, gridp);
-    int lr_weight = GetWeight(lr_coords, gridp);
+    int lr_weight = dp[lr_coords.y][lr_coords.x].sum_weight;
     int ll_weight = 0;
 
     if (lower_weight < lr_weight) {
@@ -101,21 +81,13 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
 
     curr = GetRight(curr, gridp);
 
-    #ifdef DEBUG
-    printf("%i %i\n", curr.x, curr.y);
-    #endif
-
     while (curr.x < gridp->width) {
-      #ifdef DEBUG
-      printf("%s%i %i\n", "current coords in main: ", curr.x, curr.y);
-      #endif
-
       dp[curr.y][curr.x].sum_weight = GetWeight(curr, gridp);
       int32_t weight_to_add;
       int32_t to_down_ans;
 
-      ll_weight = GetWeight(ll_coords, gridp);
-      lower_weight = GetWeight(lower_coords, gridp);
+      ll_weight = dp[ll_coords.y][ll_coords.x].sum_weight;
+      lower_weight = dp[lower_coords.y][lower_coords.x].sum_weight;
 
       if (lower_weight < ll_weight)
       {
@@ -124,13 +96,13 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
       }
       else
       {
-        weight_to_add += ll_weight;
+        weight_to_add = ll_weight;
         to_down_ans = -1;
       }
 
-      if (lr_coords.x < gridp->width)
+      if (IsRealPixel(lr_coords, gridp))
       {
-        lr_weight = GetWeight(lr_coords, gridp);
+        lr_weight = dp[lr_coords.y][lr_coords.x].sum_weight;
         if (lr_weight < weight_to_add)
         {
           weight_to_add = lr_weight;
@@ -156,13 +128,9 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
 void
 ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
 {
-  #ifdef DEBUG
-  printf("%s\n", "ErasePixelsAccordingToDP");
-  #endif
-
   //Find smallest sum weight on lowest line
-  int start_x = 0;
-  int best_weight = INT_MAX;
+  int32_t start_x = 0;
+  int32_t best_weight = INT_MAX;
 
   for (int x = 0; x < gridp->width; ++x)
   {
@@ -175,7 +143,7 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
   }
 
   #ifdef DEBUG
-  printf("%s\n", "Found starting x.");
+  printf("%s%i\n", "start_x: ", start_x);
   #endif
 
   // Moving backwards erase pixels
@@ -185,9 +153,6 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
   };
 
   for (int y = gridp->height - 1; y >= 0; --y) {
-    #ifdef DEBUG
-    printf("%s%i\n", "Current y: ", y);
-    #endif
     gridp->pixel_links_ptrs[curr.y][curr.x].erased = true;
     GPixelCoords left = GetLeft(curr, gridp);
     GPixelCoords right = GetRight(curr, gridp);
@@ -216,7 +181,6 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
       gridp->pixel_links_ptrs[lower.y][lower.x].to_upper = left.x - lower.x;
       // Correct left (link to lower)
       gridp->pixel_links_ptrs[left.y][left.x].to_lower = lower.x - left.x;
-
       curr = GetLeft(lower, gridp);
     }
     else
