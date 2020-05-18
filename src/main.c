@@ -38,7 +38,7 @@ main(int argc, char* argv[])
   DPStruct** dp_matr =
       AllocateDPMatr(working_grid.width, working_grid.height);
 
-  for (int i = 0; i < width_to_cut; ++i)
+  for (int i = 0; i < working_grid.width - width_to_cut; ++i)
   {
     #ifdef DEBUG
     printf("%s%i\n", "Iteration: ", i);
@@ -54,6 +54,60 @@ main(int argc, char* argv[])
   #ifdef DEBUG
   printf("%s\n", "Passed counting dp.");
   #endif
+
+  #ifdef DEBUG
+  for (int y = 0; y < working_grid.height; ++y)
+  {
+    for (int x = 0; x < working_grid.width; ++x)
+    {
+      printf("%i", working_grid.pixel_links_ptrs[y][x].erased ? 1 : 0);
+    }
+    printf("%c", '\n');
+  }
+  #endif
+
+  #ifdef DEBUG
+  for (int y = 0; y < working_grid.height; ++y)
+  {
+    for (int x = 0; x < working_grid.width; ++x)
+    {
+      if (!working_grid.pixel_links_ptrs[y][x].erased)
+      {
+        printf("%i", working_grid.pixel_links_ptrs[y][x].to_left);
+      }
+      else
+      {
+        printf("%c", ' ');
+      }
+    }
+    printf("%c", '\n');
+  }
+  #endif
+
+  #ifdef DEBUG
+  for (int y = 0; y < working_grid.height; ++y)
+  {
+    for (int x = 0; x < working_grid.width; ++x)
+    {
+      if (!working_grid.pixel_links_ptrs[y][x].erased)
+      {
+        printf("%i", working_grid.pixel_links_ptrs[y][x].to_right);
+      }
+      else
+      {
+        printf("%c", ' ');
+      }
+    }
+    printf("%c", '\n');
+  }
+  //printf("%s\n", "Passed counting dp.");
+  //return 0;
+  #endif
+
+
+
+
+
 
   ApplyErasedPixelsFromGrid(width_to_cut, &working_grid);
 

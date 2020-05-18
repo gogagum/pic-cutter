@@ -128,6 +128,10 @@ ApplyErasedPixelsFromGrid(int width_to_cut, GGrid *gridp)
 {
   for (int y = 0; y < (*gridp).height; ++y)
   {
+    #ifdef DEBUG
+    printf("%s%i\n", "Current y: ", y);
+    #endif
+
     // Create new line
     GPixel *new_line = malloc(sizeof(GPixel) * gridp->width - width_to_cut);
     int x =  0; // new_line iterator
@@ -140,12 +144,17 @@ ApplyErasedPixelsFromGrid(int width_to_cut, GGrid *gridp)
     // Skip all erased in the beginning of line
     while(curr.x < gridp->width)
     {
+      #ifdef DEBUG
+      printf("%s%i\n", "Current source x: ", curr.x);
+      #endif
+
       while(gridp->pixel_links_ptrs[curr.y][curr.x].erased)
       {
         curr = GetRight(curr, gridp);
       }
       new_line[x] = gridp->pixels_ptr[curr.y][curr.x];
       ++x;
+      curr = GetRight(curr, gridp);
     }
 
     // Erase old line
@@ -153,7 +162,7 @@ ApplyErasedPixelsFromGrid(int width_to_cut, GGrid *gridp)
     // Change ptr
     gridp->pixels_ptr[y] = new_line;
   }
-  gridp->width -= width_to_cut;
+  gridp->width = width_to_cut;
 }
 
 #endif    // GGRID_H

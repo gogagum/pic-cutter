@@ -143,7 +143,7 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
 
       // Move to the right
       ll_coords = GetRight(ll_coords, gridp);
-      if (lr_coords.x < gridp.width) {
+      if (lr_coords.x < gridp->width) {
         lr_coords = GetRight(lr_coords, gridp);
       }
       lower_coords = GetRight(lower_coords, gridp);
@@ -203,24 +203,29 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
       break;
     }
 
+    GPixelCoords lower = GetLower(curr, gridp);
+
     // TODO: correct lower and upper links
     if (dp[curr.y][curr.x].to_down == 0) {
       //nothing to correct
-      curr = GetLower(curr, gridp);
+      curr = lower;
     }
     else if (dp[curr.y][curr.x].to_down == -1)
     {
       // Correct lower (link to upper)
+      gridp->pixel_links_ptrs[lower.y][lower.x].to_upper = left.x - lower.x;
       // Correct left (link to lower)
-      curr = GetLower(curr, gridp);
-      curr = GetLeft(curr, gridp);
+      gridp->pixel_links_ptrs[left.y][left.x].to_lower = lower.x - left.x;
+
+      curr = GetLeft(lower, gridp);
     }
     else
     {
       // Correct lower (link to upper)
+      gridp->pixel_links_ptrs[lower.y][lower.x].to_upper = right.x - lower.x;
       // Correct right (link to lower)
-      curr = GetLower(curr, gridp);
-      curr = GetRight(curr, gridp);
+      gridp->pixel_links_ptrs[right.y][right.x].to_lower = lower.x - right.x;
+      curr = GetRight(lower, gridp);
     }
   }
 }
