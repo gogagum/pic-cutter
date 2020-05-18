@@ -23,10 +23,10 @@ DPStruct
 }
 
 void
-CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
+CountDP(DPStruct **dp, GGrid *gridp)
 {
   // Fill first line with weights
-  for (int x = 0; x < width; ++x) {
+  for (int x = 0; x < gridp->width; ++x) {
     if (!gridp->pixel_links_ptrs[0][x].erased)
     {
       GPixelCoords curr = {.x = x, .y = 0};
@@ -34,11 +34,11 @@ CountDP(int32_t width, int32_t height, DPStruct **dp, GGrid *gridp)
     }
   }
 
-  for (int y = 1; y < height; ++y)
+  for (int y = 1; y < gridp->height; ++y)
   {
     GPixelCoords curr = {.x = 0, .y = y};
     // Skip all erased pixels
-    while (curr.x < width &&
+    while (IsRealPixel(curr, gridp) &&
            gridp->pixel_links_ptrs[curr.y][curr.x].erased)
     {
       curr = GetRight(curr, gridp);
@@ -192,4 +192,14 @@ ErasePixelsAccordingToDP(DPStruct **dp, GGrid *gridp)
       curr = GetRight(lower, gridp);
     }
   }
+}
+
+void
+FreeDPMatr(int32_t height, DPStruct **dp)
+{
+  for (int y = 0; y < height; ++y)
+  {
+    free(dp[y]);
+  }
+  free(dp);
 }

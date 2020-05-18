@@ -27,7 +27,7 @@ GPixelLinks
 }
 
 void
-FillPixelLinksByDefault(GPixelLinks **row_pointers, int width, int height)
+FillPixelLinksByDefault(GPixelLinks **links_ptrs, int width, int height)
 {
   GPixelLinks default_pixel_links = {
     .to_upper = 0,
@@ -41,9 +41,19 @@ FillPixelLinksByDefault(GPixelLinks **row_pointers, int width, int height)
   {
     for (int x = 0; x < width; x++)
     {
-      row_pointers[y][x] = default_pixel_links;
+      links_ptrs[y][x] = default_pixel_links;
     }
   }
+}
+
+void
+FreePixelLinks(int height, GPixelLinks **links_ptrs)
+{
+  for (int y = 0; y < height; ++y)
+  {
+    free(links_ptrs[y]);
+  }
+  //free(links_ptrs);
 }
 
 #endif    // GPIXEL_LINKER_H

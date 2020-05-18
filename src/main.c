@@ -40,7 +40,7 @@ main(int argc, char* argv[])
 
   for (int i = 0; i < working_grid.width - width_to_cut; ++i)
   {
-    CountDP(working_grid.width, working_grid.height, dp_matr, &working_grid);
+    CountDP(dp_matr, &working_grid);
     ErasePixelsAccordingToDP(dp_matr, &working_grid);
   }
 
@@ -49,8 +49,8 @@ main(int argc, char* argv[])
   char new_file_name[sizeof(char) * (strlen(file_name) + 10)];
   Rename(new_file_name, file_name);
   WritePNGFromGrid(new_file_name, &working_grid);
-  ClearDp(&working_grid, );
-  ClearGrid(&working_grid);
+  FreeDPMatr(working_grid.height, dp_matr);
+  FreeGrid(&working_grid);
 
 
   return 0;

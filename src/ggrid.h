@@ -125,11 +125,22 @@ ApplyErasedPixelsFromGrid(int width_to_cut, GGrid *gridp)
     }
 
     // Erase old line
-    free(gridp->pixel_links_ptrs[y]);
+    free(gridp->pixels_ptr[y]);
     // Change ptr
     gridp->pixels_ptr[y] = new_line;
   }
   gridp->width = width_to_cut;
+}
+
+void
+FreeGrid(GGrid *gridp)
+{
+  //FreePixelLinks(gridp->height, gridp->pixel_links_ptrs);
+  for (int y = 0; y < gridp->height; ++y)
+  {
+    free(gridp->pixels_ptr[y]);
+  }
+  free(gridp->pixels_ptr);
 }
 
 #endif    // GGRID_H
