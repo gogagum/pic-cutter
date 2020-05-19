@@ -99,12 +99,12 @@ GetWeight(GPixelCoords curr, GGrid *gridp)
 }
 
 void
-ApplyErasedPixelsFromGrid(int width_to_cut, GGrid *gridp)
+ApplyErasedPixelsFromGrid(int new_width, GGrid *gridp)
 {
   for (int y = 0; y < (*gridp).height; ++y)
   {
     // Create new line
-    GPixel *new_line = malloc(sizeof(GPixel) * width_to_cut);
+    GPixel *new_line = malloc(sizeof(GPixel) * new_width);
     int x =  0; // new_line iterator
     GPixelCoords curr = {
       .x = 0,
@@ -129,7 +129,7 @@ ApplyErasedPixelsFromGrid(int width_to_cut, GGrid *gridp)
     // Change ptr
     gridp->pixels_ptr[y] = new_line;
   }
-  gridp->width = width_to_cut;
+  gridp->width = new_width;
 }
 
 void
