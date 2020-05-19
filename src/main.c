@@ -10,7 +10,7 @@
 #include "gpixel.h"
 #include "ggrid.h"
 #include "gpixel_linker.h"
-#include "rename.h"
+//#include "rename.h"
 #include "png_io.h"
 #include "dp.h"
 
@@ -29,7 +29,8 @@ main(int argc, char* argv[])
 {
   // Get args
   char* file_name = argv[1];
-  size_t width_to_cut = atoi(argv[2]);
+  char* new_file_name = argv[2];
+  size_t width_to_cut = atoi(argv[3]);
 
   GGrid working_grid;
   ReadPNGIntoGrid(file_name, &working_grid);
@@ -46,12 +47,9 @@ main(int argc, char* argv[])
 
   ApplyErasedPixelsFromGrid(width_to_cut, &working_grid);
 
-  char new_file_name[sizeof(char) * (strlen(file_name) + 10)];
-  Rename(new_file_name, file_name);
   WritePNGFromGrid(new_file_name, &working_grid);
   FreeDPMatr(working_grid.height, dp_matr);
   FreeGrid(&working_grid);
-
 
   return 0;
 }
