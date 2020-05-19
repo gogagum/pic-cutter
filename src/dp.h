@@ -4,6 +4,9 @@
 #include "gpixel.h"
 #include "ggrid.h"
 
+#ifndef DP_H
+#define DP_H
+
 typedef struct dp_struct_t{
   int32_t sum_weight;
   int8_t to_down;
@@ -203,3 +206,5 @@ FreeDPMatr(int32_t height, DPStruct **dp)
   }
   free(dp);
 }
+
+#endif    // DP_H

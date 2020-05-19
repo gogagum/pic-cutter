@@ -53,7 +53,7 @@ FreePixelLinks(int height, GPixelLinks **links_ptrs)
   {
     free(links_ptrs[y]);
   }
-  //free(links_ptrs);
+  free(links_ptrs);
 }
 
 #endif    // GPIXEL_LINKER_H

@@ -20,12 +20,12 @@ pic-cutter
 gcc -o ./bin/pic-cutter ./src/main.c -lpng
 ```
 
-Скачать собранную программу.
+[Скачать](https://drive.google.com/drive/folders/1tDSbGuJF8YoWFjlVid0BxNcEUbJf09Y8?usp=sharing) собранную программу для `linux_64`.
 
 Использование
 -------------
 
 ```
-./bin/pic-cutter [picture.png] [new_width]
+./bin/pic-cutter [picture.png] [new_picture.png] [new_width]
 ```
-Программа создаст файл с префиксом `_edited`, в котором будет содержаться результат.
+Программа создаст файл с названием `new_picture.png`, в котором будет содержаться результат.
