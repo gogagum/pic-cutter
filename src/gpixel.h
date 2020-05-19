@@ -33,4 +33,4 @@ ColorDistance(GPixel p1, GPixel p2)
   return distance;
 }
 
-#endif // GPIXEL_H
+#endif    // GPIXEL_H

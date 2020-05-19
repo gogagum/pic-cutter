@@ -1,3 +1,8 @@
+#include <png.h>
+
+#ifndef PNG_IO_H
+#define PNG_IO_H
+
 // Checks if file is png
 void
 CheckIfPNG(FILE* fp)
@@ -206,4 +211,4 @@ WritePNGFromGrid(char* output_file_name, GGrid* gridp)
   png_destroy_write_struct(&image_ptr, &info_ptr);
 }
 
-
+#endif    // PNG_IO_H
