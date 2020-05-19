@@ -29,3 +29,7 @@ gcc -o ./bin/pic-cutter ./src/main.c -lpng
 ./bin/pic-cutter [picture.png] [new_picture.png] [new_width]
 ```
 Программа создаст файл с названием `new_picture.png`, в котором будет содержаться результат.
+
+Комментарии
+-----------
+[Описание решения](./ABOUT_SOLUTION.md)
