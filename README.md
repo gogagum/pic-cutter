@@ -33,3 +33,5 @@ gcc -o ./bin/pic-cutter ./src/main.c -lpng
 Комментарии
 -----------
 [Описание решения](./ABOUT_SOLUTION.md)
+
+Результат работы программы можно посмотреть в папке `sample_putput/`
