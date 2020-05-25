@@ -110,9 +110,13 @@ ReadPNGIntoGrid(char* input_file_name, GGrid* gridp)
 {
   // Open file
   FILE *input_fp = fopen(input_file_name, "rb");
-  CheckIfPNG(input_fp);
+  if (NULL == input_fp)
+  {
+    perror("Error while opening file!");
+    exit(0);
+  }
 
-  // TODO: check fp
+  CheckIfPNG(input_fp);
 
   // Allocating by pointers to image and info structs
   png_structp image_ptr = PNGCreateReadStructWithCheck();
